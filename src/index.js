@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs');
 
-const fr = new FileReader();
 
 const port = 3000;
 
@@ -15,7 +15,9 @@ api.listen(port, () => {
 
 api.get('/request-wishlist', (req, res) => {
     if(req.body.userID){
-        res.json(fr.readAsText('/user-data/' + req.body.userID + '.json'))
+        res.json(fs.readFile('/user-data/' + req.body.userID + '.json'), (error, data) =>{
+            if(error) throw error;
+        });
     }
     else {
         res.json({'IDError': 'noUserID'})
