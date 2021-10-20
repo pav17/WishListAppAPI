@@ -11,3 +11,6 @@ api.listen(port, () => {
     console.log('API online.');
 });
 
+api.get('/request-wishlist', (req, res) => {
+    
+})

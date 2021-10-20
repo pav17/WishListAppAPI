@@ -1,5 +1,10 @@
 @charset "UTF-8";
 
+/*----------Global Styling----------*/
+* {
+  box-sizing: border-box;
+}
+
 body {
   background: #edf0f1;
   padding: 80px 0 0 0;
@@ -13,9 +18,10 @@ body, input, button {
   fill: none;
 }
 
+/*----------Header Styling----------*/
+
 header {
   width: 100%;
-  height: 80px;
 
   position: fixed;
   padding: 15px;
@@ -23,7 +29,7 @@ header {
   left: 0;
   z-index: 5;
 
-  background: #25b99a;
+  background:chocolate;
   box-shadow: 0px 2px 4px rgba(44, 62, 80, 0.15);
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
@@ -96,5 +102,57 @@ header button svg {
 }
   
 header button svg .fill {
-    fill: #25b99a;
+    fill: chocolate;
+}
+
+/*----------Content Styling---------*/
+
+#pageContents {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+}
+
+#wishlist {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding-inline-start: 0px;
+  width: 95%;
+  align-items: center;
+}
+
+.wishItem {
+  position: relative;
+  background: #fff;
+  padding: 15px 100px 15px 15px;
+  margin-bottom: 5px;
+  width: 100%;
+  border-radius: 5px;
+  box-shadow: 0px 1px 2px rgba(44, 62, 80, 0.10);
+}
+
+.wishItem div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.wishItem div button{
+  font-size: large;
+  background-color: #fff;
+  border-color: #fff;
+  border-style: none;
+  cursor: pointer;
+  
+}
+
+.wishItem div button:hover{
+  color:chocolate;
 }
