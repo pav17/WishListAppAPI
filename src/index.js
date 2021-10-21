@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 
-
 const port = 3000;
 
 const api = express();
@@ -58,4 +57,8 @@ api.post('/update-wishlist', jsonParser, (req, res) => {
         });
     }
     res.send('yes');
+});
+
+api.delete('/update-wishlist', jsonParser, (req, res) => {
+    
 });

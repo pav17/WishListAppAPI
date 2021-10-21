@@ -28,10 +28,10 @@ function addWishlistItem(wishText, updateAPI) {
     document.getElementById('wish').value = '';
     var updated = 'no';
     if(updateAPI) {
-        if (userID = null){
+        if (userID == null){
             createID();
         }
-        var updated = updateWishlistInAPI(userID, wishText);
+        var updated = AddWishlistItemToAPI(userID, wishText);
     }
 
     if(updated = 'yes' || updateAPI == false){
@@ -103,7 +103,7 @@ function requestWishlist(userID) {
                 results.items.forEach(element => {
                     addWishlistItem(element, false);
                 });
-            }   
+            }
         });
 
         req.addEventListener('error', (e) => {
@@ -113,15 +113,15 @@ function requestWishlist(userID) {
     }
 }
 
-function updateWishlistInAPI(userID, wishlistItem) {
+function AddWishlistItemToAPI(userID, wishListItem) {
     var req = new XMLHttpRequest();
     req.open('POST', '/update-wishlist');
     req.setRequestHeader('Content-Type', 'application/json');
 
     req.send(JSON.stringify({ 
         'userID': userID,
-        'item': wishlistItem
-     }));
+        'item': wishListItem
+    }));
 
     req.addEventListener('load', () => {
         var results = req.responseText;
@@ -129,6 +129,26 @@ function updateWishlistInAPI(userID, wishlistItem) {
             return console.log(results.error);
         } 
         return results;
+    });
+
+    req.addEventListener('error', (e) => {
+        console.log('Something bad happened!');
+        console.log(e);
+    });
+}
+
+function removeWishlistItemFromAPI(userID, wishListItem) {
+    var req = new XMLHttpRequest();
+    req.open('DELETE', '/update-wishlist');
+    req.setRequestHeader('Content-Type', 'application/json');
+
+    req.send(JSON.stringify({ 
+        'userID': userID,
+        'item': wishListItem
+    }));
+
+    req.addEventListener('load', () => {
+        
     });
 
     req.addEventListener('error', (e) => {
