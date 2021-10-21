@@ -60,5 +60,22 @@ api.post('/wishlist', jsonParser, (req, res) => {
 });
 
 api.delete('/wishlist', jsonParser, (req, res) => {
-    
+    const path = __dirname + '/user-data/' + req.body.userID + '.json';
+    if(fs.existsSync(path)) {
+        fs.readFile(path, (error, data) => {
+            if(error) throw error;
+
+            const list = JSON.parse(data.toString());
+            console.log(list);
+            const index = list.items.indexOf(req.body.item);
+            list.items.splice(index, 1);
+            console.log(list);
+            fs.writeFile(path, JSON.stringify({
+                'items': list.items
+            }), (error) => {
+                if(error) throw error;
+                res.send('removed');
+            });
+        });
+    }
 });

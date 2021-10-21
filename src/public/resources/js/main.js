@@ -29,10 +29,21 @@ function addWishlistItem(wishText) {
     if (userID == null || userID == 'null'){
         createID();
     }
-    addWishlistItemToAPI(userID, wishText, addWishToDOM());
+
+    var nodes = document.getElementById('wishlist').childNodes;
+    console.log(nodes);
+    for (var x = 1; x < nodes.length; x++) {
+        console.log(nodes[x]);
+        if (nodes[x].innerText == wishText) {
+            window.alert("No duplicate wishes!");
+            return null;
+        }
+    }
+
+    addWishlistItemToAPI(userID, wishText);
 }
 
-function addWishToDOM(wishText, wishItemID) {
+function addWishToDOM(wishText) {
     var list = document.getElementById('wishlist');
 
     var wishlistItem = document.createElement('li');
@@ -45,32 +56,32 @@ function addWishToDOM(wishText, wishItemID) {
     var checkButton = document.createElement('button');
     checkButton.classList.add('checkButton');
     checkButton.innerHTML = checkIcon;
-    checkButton.addEventListener('click', crossOutItem);
+    checkButton.addEventListener('click', deleteItem);
     
-    var trashButton = document.createElement('button');
-    trashButton.classList.add('trashButton')
-    trashButton.innerHTML = trashIcon;
-    trashButton.addEventListener('click', deleteItem);
+    // var trashButton = document.createElement('button');
+    // trashButton.classList.add('trashButton')
+    // trashButton.innerHTML = trashIcon;
+    // trashButton.addEventListener('click', deleteItem);
 
     itemButtons.appendChild(checkButton);
-    itemButtons.appendChild(trashButton);
+    // itemButtons.appendChild(trashButton);
     wishlistItem.appendChild(itemButtons);
     list.appendChild(wishlistItem);
 }
 
-function crossOutItem() {
-    var item = this.parentNode.parentNode;
-    if (item.classList.contains('crossedOut')){
-        item.classList.remove('crossedOut');
-    }
-    else {
-        item.classList.add('crossedOut');
-    }
-}
+// function crossOutItem() {
+//     var item = this.parentNode.parentNode;
+//     if (item.classList.contains('crossedOut')){
+//         item.classList.remove('crossedOut');
+//     }
+//     else {
+//         item.classList.add('crossedOut');
+//     }
+// }
 
 function deleteItem() {
     var item = this.parentNode.parentNode;
-    item.remove();
+    removeWishlistItemFromAPI(userID, item);
 }
 
 function createID() {
@@ -80,10 +91,10 @@ function createID() {
     return ID;
 }
 
-function listItem(wishText, wishID) {
-    this.wishText = wishText;
-    this.wishID = wishID;
-}
+// function listItem(wishText, wishID) {
+//     this.wishText = wishText;
+//     this.wishID = wishID;
+// }
 
 // API functions
 function requestWishlist(userID) {
@@ -100,7 +111,7 @@ function requestWishlist(userID) {
             if (results.error){
                 console.log(results.error);
             }
-            else{
+            else if (!results.error) {
                 console.log(results.items);
                 results.items.forEach(element => {
                     addWishToDOM(element);
@@ -133,7 +144,7 @@ function addWishlistItemToAPI(userID, wishListItem, callback) {
         if (results.error) {
             return console.log(results.error);
         } 
-        callback(wishListItem);
+        addWishToDOM(wishListItem);
     });
 
     req.addEventListener('error', (e) => {
@@ -149,11 +160,11 @@ function removeWishlistItemFromAPI(userID, wishListItem) {
 
     req.send(JSON.stringify({ 
         'userID': userID,
-        'item': wishListItem
+        'item': wishListItem.innerText
     }));
 
     req.addEventListener('load', () => {
-        
+        wishListItem.remove();
     });
 
     req.addEventListener('error', (e) => {
