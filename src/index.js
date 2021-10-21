@@ -15,7 +15,7 @@ api.listen(port, () => {
     console.log('API online.');
 });
 
-api.get('/request-wishlist', urlencodedParser, (req, res) => {
+api.get('/wishlist', urlencodedParser, (req, res) => {
     const path = __dirname + '/user-data/' + req.query.userID + '.json';
     console.log(path);
     if(fs.existsSync(path)){
@@ -30,7 +30,7 @@ api.get('/request-wishlist', urlencodedParser, (req, res) => {
     }
 });
 
-api.post('/update-wishlist', jsonParser, (req, res) => {
+api.post('/wishlist', jsonParser, (req, res) => {
     console.log(req.body.userID + ': ' + req.body.item);
     const path = __dirname + '/user-data/' + req.body.userID + '.json';
     if(fs.existsSync(path)) {
@@ -59,6 +59,6 @@ api.post('/update-wishlist', jsonParser, (req, res) => {
     res.send('yes');
 });
 
-api.delete('/update-wishlist', jsonParser, (req, res) => {
+api.delete('/wishlist', jsonParser, (req, res) => {
     
 });

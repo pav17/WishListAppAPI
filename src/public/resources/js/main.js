@@ -10,7 +10,7 @@ var userID = localStorage.getItem('userID');
 
 
 
-if(userID == null) {
+if(userID == null && userID != 'null') {
     //catch if null later
     createID();
 }
@@ -24,41 +24,38 @@ document.getElementById('addWish').addEventListener('click', function() {
     }
 });
 
-function addWishlistItem(wishText, updateAPI) {
+function addWishlistItem(wishText) {
     document.getElementById('wish').value = '';
-    var updated = 'no';
-    if(updateAPI) {
-        if (userID == null){
-            createID();
-        }
-        var updated = AddWishlistItemToAPI(userID, wishText);
+    if (userID == null || userID == 'null'){
+        createID();
     }
+    addWishlistItemToAPI(userID, wishText, addWishToDOM());
+}
 
-    if(updated = 'yes' || updateAPI == false){
-        var list = document.getElementById('wishlist');
+function addWishToDOM(wishText) {
+    var list = document.getElementById('wishlist');
 
-        var wishlistItem = document.createElement('li');
-        wishlistItem.classList.add('wishItem');
-        wishlistItem.innerText = wishText;
+    var wishlistItem = document.createElement('li');
+    wishlistItem.classList.add('wishItem');
+    wishlistItem.innerText = wishText;
 
-        var itemButtons = document.createElement('div');
-        itemButtons.classList.add('itemButtons');
+    var itemButtons = document.createElement('div');
+    itemButtons.classList.add('itemButtons');
 
-        var checkButton = document.createElement('button');
-        checkButton.classList.add('checkButton');
-        checkButton.innerHTML = checkIcon;
-        checkButton.addEventListener('click', crossOutItem);
-        
-        var trashButton = document.createElement('button');
-        trashButton.classList.add('trashButton')
-        trashButton.innerHTML = trashIcon;
-        trashButton.addEventListener('click', deleteItem);
+    var checkButton = document.createElement('button');
+    checkButton.classList.add('checkButton');
+    checkButton.innerHTML = checkIcon;
+    checkButton.addEventListener('click', crossOutItem);
+    
+    var trashButton = document.createElement('button');
+    trashButton.classList.add('trashButton')
+    trashButton.innerHTML = trashIcon;
+    trashButton.addEventListener('click', deleteItem);
 
-        itemButtons.appendChild(checkButton);
-        itemButtons.appendChild(trashButton);
-        wishlistItem.appendChild(itemButtons);
-        list.appendChild(wishlistItem);
-    } 
+    itemButtons.appendChild(checkButton);
+    itemButtons.appendChild(trashButton);
+    wishlistItem.appendChild(itemButtons);
+    list.appendChild(wishlistItem);
 }
 
 function crossOutItem() {
@@ -85,11 +82,11 @@ function createID() {
 
 // API functions
 function requestWishlist(userID) {
-    if(userID != null){
+    if(userID != null && userID != 'null'){
         var req = new XMLHttpRequest();
         var params = "userID=" + userID;
         console.log(params);
-        req.open('GET', '/request-wishlist' + '?' + params, true);
+        req.open('GET', '/wishlist' + '?' + params, true);
         req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         req.send(null);
         
@@ -101,7 +98,7 @@ function requestWishlist(userID) {
             else{
                 console.log(results.items);
                 results.items.forEach(element => {
-                    addWishlistItem(element, false);
+                    addWishToDOM(element);
                 });
             }
         });
@@ -110,12 +107,15 @@ function requestWishlist(userID) {
             console.log('there was an error.');
             console.log(e);
         });
+    } 
+    else {
+        createID();
     }
 }
 
-function AddWishlistItemToAPI(userID, wishListItem) {
+function addWishlistItemToAPI(userID, wishListItem, callback) {
     var req = new XMLHttpRequest();
-    req.open('POST', '/update-wishlist');
+    req.open('POST', '/wishlist');
     req.setRequestHeader('Content-Type', 'application/json');
 
     req.send(JSON.stringify({ 
@@ -128,7 +128,7 @@ function AddWishlistItemToAPI(userID, wishListItem) {
         if (results.error) {
             return console.log(results.error);
         } 
-        return results;
+        callback(wishListItem);
     });
 
     req.addEventListener('error', (e) => {
@@ -139,7 +139,7 @@ function AddWishlistItemToAPI(userID, wishListItem) {
 
 function removeWishlistItemFromAPI(userID, wishListItem) {
     var req = new XMLHttpRequest();
-    req.open('DELETE', '/update-wishlist');
+    req.open('DELETE', '/wishlist');
     req.setRequestHeader('Content-Type', 'application/json');
 
     req.send(JSON.stringify({ 
