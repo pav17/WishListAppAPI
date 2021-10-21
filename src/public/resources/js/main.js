@@ -32,7 +32,7 @@ function addWishlistItem(wishText) {
     addWishlistItemToAPI(userID, wishText, addWishToDOM());
 }
 
-function addWishToDOM(wishText) {
+function addWishToDOM(wishText, wishItemID) {
     var list = document.getElementById('wishlist');
 
     var wishlistItem = document.createElement('li');
@@ -78,6 +78,11 @@ function createID() {
     userID = ID;
     localStorage.setItem('userID', ID)
     return ID;
+}
+
+function listItem(wishText, wishID) {
+    this.wishText = wishText;
+    this.wishID = wishID;
 }
 
 // API functions
@@ -156,3 +161,4 @@ function removeWishlistItemFromAPI(userID, wishListItem) {
         console.log(e);
     });
 }
+
