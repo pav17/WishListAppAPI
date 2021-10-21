@@ -6,24 +6,56 @@ const fs = require('fs');
 const port = 3000;
 
 const api = express();
+
+const jsonParser = bodyParser.json();
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 api.use(express.static(__dirname + '/public'));
-api.use(bodyParser.json());
+
 
 api.listen(port, () => {
     console.log('API online.');
 });
 
-api.get('/request-wishlist', (req, res) => {
-    if(req.body.userID){
-        res.json(fs.readFile('/user-data/' + req.body.userID + '.json'), (error, data) =>{
-            if(error) throw error;
+api.get('/request-wishlist', urlencodedParser, (req, res) => {
+    const path = __dirname + '/user-data/' + req.query.userID + '.json';
+    console.log(path);
+    if(fs.existsSync(path)){
+        fs.readFile(path, (error, data) => {
+            if (error) throw error;
+
+            res.send(data.toString());
         });
     }
     else {
-        res.json({'IDError': 'noUserID'})
+        res.json({'error': 'No valid user found.'});
     }
-})
+});
 
-api.get('/request-id', (req, res) => {
-    
-})
+api.post('/update-wishlist', jsonParser, (req, res) => {
+    console.log(req.body.userID + ': ' + req.body.item);
+    const path = __dirname + '/user-data/' + req.body.userID + '.json';
+    if(fs.existsSync(path)) {
+        fs.readFile(path, (error, data) => {
+            if(error) throw error;
+
+            const list = JSON.parse(data.toString());
+            console.log(list);
+            list.items.push(req.body.item);
+            console.log(list);
+            fs.writeFile(path, JSON.stringify({
+                'items': list.items
+            }), (error) => {
+                if(error) throw error;
+            });
+        });
+    }
+    else {
+        const list = [req.body.item];
+        fs.writeFile(path, JSON.stringify({
+            'items': list
+        }), (error) => {
+            if(error) throw error;
+        });
+    }
+    res.send('yes');
+});

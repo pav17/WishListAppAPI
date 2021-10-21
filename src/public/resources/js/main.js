@@ -8,62 +8,108 @@ var userID = localStorage.getItem('userID');
 
 
 
-//requestWishlist(userID);
+
+
+if(userID == null) {
+    //catch if null later
+    createID();
+}
+
+requestWishlist(userID);
 
 document.getElementById('addWish').addEventListener('click', function() {
     var wishText = document.getElementById('wish').value;
     if (wishText) {
-        addWishlistItem(wishText);
+        addWishlistItem(wishText, true);
     }
 });
 
-function addWishlistItem(wishText) {
+function addWishlistItem(wishText, updateAPI) {
     document.getElementById('wish').value = '';
-    
-    var list = document.getElementById('wishlist');
+    var updated = 'no';
+    if(updateAPI) {
+        if (userID = null){
+            createID();
+        }
+        var updated = updateWishlistInAPI(userID, wishText);
+    }
 
-    var wishlistItem = document.createElement('li');
-    wishlistItem.classList.add('wishItem');
-    wishlistItem.innerText = wishText;
+    if(updated = 'yes' || updateAPI == false){
+        var list = document.getElementById('wishlist');
 
-    var itemButtons = document.createElement('div');
-    itemButtons.classList.add('itemButtons');
+        var wishlistItem = document.createElement('li');
+        wishlistItem.classList.add('wishItem');
+        wishlistItem.innerText = wishText;
 
-    var checkButton = document.createElement('button');
-    checkButton.classList.add('checkButton');
-    checkButton.innerHTML = checkIcon;
-    //checkButton.addEventListener('click', crossOutItem);
-    
-    var trashButton = document.createElement('button');
-    trashButton.classList.add('trashButton')
-    trashButton.innerHTML = trashIcon;
-    //trashButton.addEventListener('click', deleteItem);
+        var itemButtons = document.createElement('div');
+        itemButtons.classList.add('itemButtons');
 
-    itemButtons.appendChild(checkButton);
-    itemButtons.appendChild(trashButton);
-    wishlistItem.appendChild(itemButtons);
-    list.appendChild(wishlistItem);
+        var checkButton = document.createElement('button');
+        checkButton.classList.add('checkButton');
+        checkButton.innerHTML = checkIcon;
+        checkButton.addEventListener('click', crossOutItem);
+        
+        var trashButton = document.createElement('button');
+        trashButton.classList.add('trashButton')
+        trashButton.innerHTML = trashIcon;
+        trashButton.addEventListener('click', deleteItem);
+
+        itemButtons.appendChild(checkButton);
+        itemButtons.appendChild(trashButton);
+        wishlistItem.appendChild(itemButtons);
+        list.appendChild(wishlistItem);
+    } 
+}
+
+function crossOutItem() {
+    var item = this.parentNode.parentNode;
+    if (item.classList.contains('crossedOut')){
+        item.classList.remove('crossedOut');
+    }
+    else {
+        item.classList.add('crossedOut');
+    }
+}
+
+function deleteItem() {
+    var item = this.parentNode.parentNode;
+    item.remove();
+}
+
+function createID() {
+    var ID = prompt('Please enter a user ID.');
+    userID = ID;
+    localStorage.setItem('userID', ID)
+    return ID;
 }
 
 // API functions
 function requestWishlist(userID) {
     if(userID != null){
         var req = new XMLHttpRequest();
-        req.open('GET', '/request-wishlist');
-        req.setRequestHeader('Content-Type', 'application/json');
-        req.send(JSON.stringify({ 'userID': userID }))
+        var params = "userID=" + userID;
+        console.log(params);
+        req.open('GET', '/request-wishlist' + '?' + params, true);
+        req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        req.send(null);
         
         req.addEventListener('load', () => {
             var results = JSON.parse(req.responseText);
+            if (results.error){
+                console.log(results.error);
+            }
+            else{
+                console.log(results.items);
+                results.items.forEach(element => {
+                    addWishlistItem(element, false);
+                });
+            }   
         });
-        req.addEventListener('IDError', () => {
-            var results = JSON.parse(req.responseText);
-            console.log(results);
+
+        req.addEventListener('error', (e) => {
+            console.log('there was an error.');
+            console.log(e);
         });
-    }
-    else {
-        userID = RegisterNewUser();
-        localStorage.setItem('userID', userID)
     }
 }
 
@@ -71,34 +117,22 @@ function updateWishlistInAPI(userID, wishlistItem) {
     var req = new XMLHttpRequest();
     req.open('POST', '/update-wishlist');
     req.setRequestHeader('Content-Type', 'application/json');
-    req.send(JSON.stringify({ userID: wishlistItem }));
+
+    req.send(JSON.stringify({ 
+        'userID': userID,
+        'item': wishlistItem
+     }));
 
     req.addEventListener('load', () => {
-        var results = JSON.parse(req.responseText);
+        var results = req.responseText;
         if (results.error) {
             return console.log(results.error);
         } 
+        return results;
     });
 
-    req.addEventListener('error', () => {
+    req.addEventListener('error', (e) => {
         console.log('Something bad happened!');
         console.log(e);
-    });
-}
-
-function RegisterNewUser() {
-    var req = new XMLHttpRequest();
-    req.open('GET', '/request-id');
-    //req.setRequestHeader('Content-Type', 'application/json');
-    req.send()
-    
-    req.addEventListener('load', () => {
-        var result = JSON.parse(req.responseText);
-        if(result.error) {
-            //return console.log(result.error);
-        } 
-        if(result.newID) {
-            return result.newID;
-        }
     });
 }

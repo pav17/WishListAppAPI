@@ -156,3 +156,7 @@ header button svg .fill {
 .wishItem div button:hover{
   color:chocolate;
 }
+
+.crossedOut {
+  text-decoration: line-through;
+}
